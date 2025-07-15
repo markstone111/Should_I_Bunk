@@ -1,0 +1,88 @@
+# Node
+node_modules/
+.expo/
+.bolt/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+
+# Python venv
+backend/.venv/
+
+# Local environment files
+.env
+.env.local
+# Build outputs
+dist/
+# Expo
+.expo/
+# Expo web build
+web-build/
+# Expo environment types
+expo-env.d.ts
+# Native files
+*.orig.*
+
+*.jks
+*.p8    
+*.p12
+*.key
+*.mobileprovision
+# Metro
+.metro-health-check*
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+# MacOS
+.DS_Store
+*.pem
+# Local environment files
+.env*.local
+.env
+# TypeScript
+*.tsbuildinfo
+# Python
+*.pyc
+__pycache__/
+.venv/
+*.pkl
+# Additional Python packages
+requests
+flask-sqlalchemy
+# Additional Python packages
+joblib
+# Additional Python packages
+numpy
+# Additional Python packages
+gunicorn
+# Additional Python packages
+flask
+# Additional Python packages
+pandas
+# Additional Python packages
+scikit-learn
+# Additional Python packages
+beautifulsoup4
+# Additional Python packages
+selenium
+# Additional Python packages
+flask-cors
+
+# Additional Python packages
+pytest
+# Additional Python packages
+pytest-cov
+# Additional Python packages
+pytest-mock
+# Additional Python packages
+pytest-asyncio
+# Additional Python packages
+pytest-flask
+# Additional Python packages
+pytest-selenium
