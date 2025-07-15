@@ -42,7 +42,9 @@ def predict():
         'advice': advice
     })
 
-
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({"message": "API is running! Use POST /predict"})
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=5000, debug=True)
 
