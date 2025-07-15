@@ -14,7 +14,8 @@ interface PredictionOutput {
 }
 
 export class PredictionService {
-  private static readonly API_BASE_URL = 'http://192.168.1.38:5000';
+  private static readonly API_BASE_URL = 'https://bunk-predictor-api-vy14.onrender.com';
+
 
   static async predict(input: PredictionInput): Promise<PredictionOutput> {
     try {
