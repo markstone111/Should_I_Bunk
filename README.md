@@ -227,9 +227,12 @@ npx eas build -p android --profile preview
 - Update API URL in App: Once deployed, Render will give you a public URL. Copy this URL and paste it into the PredictionService.ts file in your mobile app before creating a final build.
 
 ---
+### Hashnode blog link - [ https://should-i-bunk.hashnode.dev/](https://should-i-bunk.hashnode.dev/should-i-bunk)
+---
 # ⭐ Show Your Support
 
 If you found this project useful or interesting, please consider giving it a star ⭐ on GitHub!
 
 Feel free to fork the repository and contribute with your own features or improvements.
 ---
+
