@@ -17,8 +17,18 @@ backend/.venv/
 # Local environment files
 .env
 .env.local
-# Build outputs
+# Android build & cache
+.gradle/
+**/android/**/.gradle/
+**/android/**/build/
+android/app/build/
+android/build/
+
+# Build outputs & Binaries
 dist/
+*.apk
+*.aab
+*.zip
 # Expo
 .expo/
 # Expo web build
@@ -86,3 +96,4 @@ pytest-asyncio
 pytest-flask
 # Additional Python packages
 pytest-selenium
+.andromity/

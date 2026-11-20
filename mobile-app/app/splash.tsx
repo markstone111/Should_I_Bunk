@@ -1,6 +1,8 @@
+// mobile-app/app/splash.tsx
+
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { router } from 'expo-router';
+import { router } from 'expo-router'; // Still use direct 'router' import
 import { LinearGradient } from 'expo-linear-gradient';
 import { BookOpen } from 'lucide-react-native';
 

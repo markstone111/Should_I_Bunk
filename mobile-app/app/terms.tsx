@@ -1,14 +1,19 @@
+// mobile-app/app/terms.tsx
+
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Check } from 'lucide-react-native';
+import { useApp } from '@/context/AppContext'; // <--- IMPORT useApp
 
 export default function TermsScreen() {
   const [accepted, setAccepted] = useState(false);
+  const { setOnboardingComplete } = useApp(); // <--- GET setOnboardingComplete from context
 
   const handleContinue = () => {
     if (accepted) {
+      setOnboardingComplete(); // <--- CALL THIS TO MARK ONBOARDING AS COMPLETE
       router.replace('/(tabs)');
     }
   };
@@ -52,8 +57,8 @@ export default function TermsScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.checkbox} 
+        <TouchableOpacity
+          style={styles.checkbox}
           onPress={() => setAccepted(!accepted)}
         >
           <View style={[styles.checkboxInner, accepted && styles.checkboxChecked]}>
@@ -64,8 +69,8 @@ export default function TermsScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={[styles.continueButton, !accepted && styles.disabledButton]} 
+        <TouchableOpacity
+          style={[styles.continueButton, !accepted && styles.disabledButton]}
           onPress={handleContinue}
           disabled={!accepted}
         >
