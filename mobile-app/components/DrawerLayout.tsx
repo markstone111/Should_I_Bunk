@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, Alert }
 import { BlurView } from 'expo-blur';
 import { FileText, Settings, MessageCircle, X } from 'lucide-react-native';
 import { useApp } from '@/context/AppContext';
+import { calculateSubjectStats } from '@/utils/attendanceCalculator';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
@@ -37,14 +38,12 @@ const handleExportReports = async () => {
 
   //Add each subject line, safely escape commas if any in names
   subjects.forEach(subject => {
-    const percentage = subject.totalClasses > 0
-      ? ((subject.attendedClasses / subject.totalClasses) * 100).toFixed(2)
-      : '0.00';
+    const stats = calculateSubjectStats(subject);
     
     //If the name has commas, wrap in double quotes
     const safeName = subject.name.includes(',') ? `"${subject.name}"` : subject.name;
 
-    rows.push([safeName, subject.totalClasses, subject.attendedClasses, `${percentage}%`].join(','));
+    rows.push([safeName, stats.totalClasses.toString(), stats.attendedClasses.toString(), `${stats.percentage}%`].join(','));
   });
 
   //Combine rows into CSV text
