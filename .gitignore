@@ -1,3 +1,6 @@
+# Local Agent & Docs (Not pushed to GitHub)
+docs/
+
 # Node
 node_modules/
 .expo/

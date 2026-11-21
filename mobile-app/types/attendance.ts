@@ -19,6 +19,7 @@ export interface AttendanceRecord {
 
 export interface TimetableSlot {
   id: string;
+  subjectId: string;
   dayOfWeek: number; // 1 = Monday, 2 = Tuesday, ... 7 = Sunday
   startTime: string; // "09:00"
   endTime: string; // "10:00"
@@ -72,3 +73,20 @@ export interface OverallStats {
   warningSubjectsCount: number;
   totalSafeBunksAvailable: number;
 }
+
+export interface TodayClassItem {
+  slot: TimetableSlot;
+  subject: Subject;
+  stats: SubjectStats;
+  todayRecord?: AttendanceRecord;
+}
+
+export const DAYS_OF_WEEK = [
+  { id: 1, name: 'Monday', short: 'Mon' },
+  { id: 2, name: 'Tuesday', short: 'Tue' },
+  { id: 3, name: 'Wednesday', short: 'Wed' },
+  { id: 4, name: 'Thursday', short: 'Thu' },
+  { id: 5, name: 'Friday', short: 'Fri' },
+  { id: 6, name: 'Saturday', short: 'Sat' },
+  { id: 7, name: 'Sunday', short: 'Sun' },
+];

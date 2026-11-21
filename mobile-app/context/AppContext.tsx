@@ -1,6 +1,14 @@
 // mobile-app/context/AppContext.tsx
 
-import React, { createContext, useContext, useReducer, useEffect, useState, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
 import {
@@ -8,9 +16,12 @@ import {
   AttendanceRecord,
   AttendanceStatus,
   ClassType,
+  TimetableSlot,
   OverallStats,
+  TodayClassItem,
 } from '@/types/attendance';
-import { calculateOverallStats } from '@/utils/attendanceCalculator';
+import { calculateOverallStats, calculateSubjectStats } from '@/utils/attendanceCalculator';
+import { NotificationService } from '@/utils/NotificationService';
 
 // --- PALETTE FOR AUTO-ASSIGNING COLORS TO SUBJECTS ---
 const SUBJECT_COLORS = [
@@ -27,6 +38,7 @@ const SUBJECT_COLORS = [
 // --- APP STATE INTERFACE ---
 interface AppState {
   subjects: Subject[];
+  timetableSlots: TimetableSlot[];
   darkMode: boolean;
   notificationsEnabled: boolean;
   hasSeenOnboarding: boolean;
@@ -37,6 +49,7 @@ interface AppState {
 export interface AppContextType extends AppState {
   isDarkMode: boolean;
   overallStats: OverallStats;
+  todayClasses: TodayClassItem[];
   addSubject: (
     subject: Partial<Subject> & {
       name: string;
@@ -63,6 +76,9 @@ export interface AppContextType extends AppState {
     dateString: string,
     slotIndex?: number
   ) => void;
+  addTimetableSlot: (slot: Omit<TimetableSlot, 'id'>) => void;
+  deleteTimetableSlot: (slotId: string) => void;
+  quickMarkTodaySlot: (slot: TimetableSlot, status: AttendanceStatus) => void;
   setGlobalTargetPercentage: (target: number) => void;
   toggleDarkMode: () => void;
   toggleNotifications: () => void;
@@ -75,6 +91,7 @@ const AppContext = createContext<AppContextType | null>(null);
 // --- INITIAL STATE ---
 const initialState: AppState = {
   subjects: [],
+  timetableSlots: [],
   darkMode: false,
   notificationsEnabled: true,
   hasSeenOnboarding: false,
@@ -109,6 +126,8 @@ type AppAction =
       type: 'CYCLE_ATTENDANCE';
       payload: { subjectId: string; dateString: string; slotIndex: number };
     }
+  | { type: 'ADD_TIMETABLE_SLOT'; payload: TimetableSlot }
+  | { type: 'DELETE_TIMETABLE_SLOT'; payload: string }
   | { type: 'SET_GLOBAL_TARGET'; payload: number }
   | { type: 'TOGGLE_DARK_MODE' }
   | { type: 'TOGGLE_NOTIFICATIONS' }
@@ -152,7 +171,6 @@ function migrateSubjects(rawSubjects: any[]): Subject[] {
       updatedAt: s.updatedAt || new Date().toISOString(),
       timetable: Array.isArray(s.timetable) ? s.timetable : [],
       attendanceRecords: records,
-      // Retain legacy cache fields if present
       totalClasses: s.totalClasses,
       attendedClasses: s.attendedClasses,
     };
@@ -166,6 +184,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       const payload = action.payload;
       return {
         subjects: migrateSubjects(payload.subjects || []),
+        timetableSlots: Array.isArray(payload.timetableSlots) ? payload.timetableSlots : [],
         darkMode: Boolean(payload.darkMode),
         notificationsEnabled: payload.notificationsEnabled ?? true,
         hasSeenOnboarding: payload.hasSeenOnboarding ?? false,
@@ -191,6 +210,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         subjects: state.subjects.filter((s) => s.id !== action.payload),
+        timetableSlots: state.timetableSlots.filter((slot) => slot.subjectId !== action.payload),
       };
 
     case 'ARCHIVE_SUBJECT':
@@ -258,7 +278,6 @@ function appReducer(state: AppState, action: AppAction): AppState {
     }
 
     case 'CYCLE_ATTENDANCE': {
-      // 4-state cycle on a calendar date: Unmarked -> Present -> Absent -> Duty Leave -> Cancelled -> Unmarked
       const { subjectId, dateString, slotIndex } = action.payload;
       return {
         ...state,
@@ -272,7 +291,6 @@ function appReducer(state: AppState, action: AppAction): AppState {
           let updatedRecords: AttendanceRecord[];
 
           if (!existing) {
-            // Unmarked -> Present
             const newRecord: AttendanceRecord = {
               id: `${subjectId}-${dateString}-${slotIndex}-${Date.now()}`,
               date: dateString,
@@ -283,22 +301,18 @@ function appReducer(state: AppState, action: AppAction): AppState {
             };
             updatedRecords = [...records, newRecord];
           } else if (existing.status === 'present') {
-            // Present -> Absent
             updatedRecords = records.map((r) =>
               r.id === existing.id ? { ...r, status: 'absent' as AttendanceStatus } : r
             );
           } else if (existing.status === 'absent') {
-            // Absent -> Duty Leave (OD)
             updatedRecords = records.map((r) =>
               r.id === existing.id ? { ...r, status: 'duty_leave' as AttendanceStatus } : r
             );
           } else if (existing.status === 'duty_leave') {
-            // Duty Leave -> Cancelled
             updatedRecords = records.map((r) =>
               r.id === existing.id ? { ...r, status: 'cancelled' as AttendanceStatus } : r
             );
           } else {
-            // Cancelled -> Unmarked (remove record)
             updatedRecords = records.filter((r) => r.id !== existing.id);
           }
 
@@ -310,6 +324,18 @@ function appReducer(state: AppState, action: AppAction): AppState {
         }),
       };
     }
+
+    case 'ADD_TIMETABLE_SLOT':
+      return {
+        ...state,
+        timetableSlots: [...state.timetableSlots, action.payload],
+      };
+
+    case 'DELETE_TIMETABLE_SLOT':
+      return {
+        ...state,
+        timetableSlots: state.timetableSlots.filter((slot) => slot.id !== action.payload),
+      };
 
     case 'SET_GLOBAL_TARGET':
       return {
@@ -378,12 +404,67 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state, dataLoaded]);
 
-  // Overall memoized statistics across all subjects
+  // Overall memoized statistics
   const overallStats = useMemo(() => {
     return calculateOverallStats(state.subjects);
   }, [state.subjects]);
 
-  // Context Actions
+  // Compute Today's Classes
+  const todayClasses = useMemo((): TodayClassItem[] => {
+    const today = new Date();
+    // JS getDay(): 0 = Sun, 1 = Mon... Convert to 1 = Mon, ..., 7 = Sun
+    const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Filter slots for today and sort by start time
+    const todaySlots = state.timetableSlots
+      .filter((slot) => slot.dayOfWeek === dayOfWeek)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    const items: TodayClassItem[] = [];
+    for (const slot of todaySlots) {
+      const subject = state.subjects.find((s) => s.id === slot.subjectId);
+      if (subject && !subject.isArchived) {
+        const stats = calculateSubjectStats(subject);
+        const todayRecord = (subject.attendanceRecords || []).find(
+          (r) =>
+            r.date === todayStr &&
+            (r.timeSlot === slot.startTime || r.slotIndex === slot.dayOfWeek)
+        );
+        items.push({
+          slot,
+          subject,
+          stats,
+          todayRecord,
+        });
+      }
+    }
+    return items;
+  }, [state.timetableSlots, state.subjects]);
+
+  // Sync scheduled notifications whenever timetable or subjects change
+  useEffect(() => {
+    if (dataLoaded && state.notificationsEnabled) {
+      NotificationService.scheduleDailyBriefing(
+        8,
+        0,
+        todayClasses.length,
+        overallStats.totalSafeBunksAvailable,
+        overallStats.dangerSubjectsCount
+      );
+
+      // Schedule reminders for today's upcoming classes
+      for (const item of todayClasses) {
+        NotificationService.scheduleClassReminder(
+          item.slot,
+          item.subject.name,
+          item.stats.safeBunks
+        );
+      }
+    }
+  }, [dataLoaded, state.notificationsEnabled, todayClasses, overallStats]);
+
+  // Actions
   const addSubject = (
     subjectData: Partial<Subject> & {
       name: string;
@@ -394,14 +475,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const colorIndex = state.subjects.length % SUBJECT_COLORS.length;
     const subjectId = Date.now().toString();
 
-    // If student joins mid-semester and enters baseline numbers
     const initialRecords: AttendanceRecord[] = [];
     const initialTotal = Math.max(0, subjectData.initialTotal || 0);
     const initialAttended = Math.min(initialTotal, Math.max(0, subjectData.initialAttended || 0));
     const initialAbsent = initialTotal - initialAttended;
 
     if (initialTotal > 0) {
-      // Create baseline past batch records
       const today = new Date();
       for (let i = 0; i < initialAttended; i++) {
         const d = new Date(today);
@@ -509,6 +588,55 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const addTimetableSlot = (slotData: Omit<TimetableSlot, 'id'>) => {
+    const newSlot: TimetableSlot = {
+      ...slotData,
+      id: `slot-${Date.now()}`,
+    };
+    dispatch({ type: 'ADD_TIMETABLE_SLOT', payload: newSlot });
+  };
+
+  const deleteTimetableSlot = (slotId: string) => {
+    dispatch({ type: 'DELETE_TIMETABLE_SLOT', payload: slotId });
+  };
+
+  const quickMarkTodaySlot = (slot: TimetableSlot, status: AttendanceStatus) => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const subject = state.subjects.find((s) => s.id === slot.subjectId);
+    if (!subject) return;
+
+    const existingRecord = (subject.attendanceRecords || []).find(
+      (r) => r.date === todayStr && (r.timeSlot === slot.startTime || r.slotIndex === slot.dayOfWeek)
+    );
+
+    if (existingRecord) {
+      updateAttendanceRecord(subject.id, existingRecord.id, { status });
+    } else {
+      recordAttendance(subject.id, {
+        date: todayStr,
+        slotIndex: slot.dayOfWeek,
+        timeSlot: slot.startTime,
+        type: slot.type,
+        weight: slot.type === 'lab' ? 2 : 1,
+        status,
+      });
+    }
+
+    // Trigger instant danger zone alert if marking absent causes drop below target
+    if (status === 'absent') {
+      const stats = calculateSubjectStats(subject);
+      const newTotal = stats.totalClasses + (slot.type === 'lab' ? 2 : 1);
+      const newPct = Math.round((stats.attendedClasses / newTotal) * 100);
+      if (newPct < stats.targetPercentage) {
+        NotificationService.sendDangerZoneAlert(
+          subject.name,
+          newPct,
+          stats.targetPercentage
+        );
+      }
+    }
+  };
+
   const setGlobalTargetPercentage = (target: number) => {
     dispatch({ type: 'SET_GLOBAL_TARGET', payload: target });
   };
@@ -518,6 +646,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleNotifications = () => {
+    const nextState = !state.notificationsEnabled;
+    if (nextState) {
+      NotificationService.requestPermissions();
+    } else {
+      NotificationService.cancelAll();
+    }
     dispatch({ type: 'TOGGLE_NOTIFICATIONS' });
   };
 
@@ -528,6 +662,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const resetAllData = async () => {
     try {
       await AsyncStorage.removeItem('shouldIBunkData');
+      await NotificationService.cancelAll();
       dispatch({ type: 'RESET_ALL_DATA' });
     } catch (error) {
       console.error('Error resetting data:', error);
@@ -540,6 +675,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ...state,
         isDarkMode,
         overallStats,
+        todayClasses,
         addSubject,
         updateSubject,
         deleteSubject,
@@ -549,6 +685,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         updateAttendanceRecord,
         deleteAttendanceRecord,
         quickCycleAttendance,
+        addTimetableSlot,
+        deleteTimetableSlot,
+        quickMarkTodaySlot,
         setGlobalTargetPercentage,
         toggleDarkMode,
         toggleNotifications,
