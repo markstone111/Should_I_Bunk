@@ -1,221 +1,4 @@
-// import React from 'react';
-// import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert } from 'react-native';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-// import { Moon, Sun, Bell, Trash2, Info, MessageCircle } from 'lucide-react-native';
-// import { useApp } from '@/context/AppContext';
-
-// export default function SettingsScreen() {
-//   const { darkMode, toggleDarkMode, notificationsEnabled, toggleNotifications, resetAllData, isDarkMode } = useApp();
-
-//   const handleResetData = () => {
-//     Alert.alert(
-//       'Reset All Data',
-//       'Are you sure you want to delete all subjects and attendance data? This action cannot be undone.',
-//       [
-//         { text: 'Cancel', style: 'cancel' },
-//         { 
-//           text: 'Reset', 
-//           style: 'destructive',
-//           onPress: resetAllData 
-//         },
-//       ]
-//     );
-//   };
-
-//   const handleFeedback = () => {
-//     Alert.alert('Feedback', 'Feedback feature coming soon!');
-//   };
-
-//   const handleAbout = () => {
-//     Alert.alert(
-//       'About Should I Bunk',
-//       'Version 1.0.1\n\nHelping people to manage attendance responsibly to do something productive other than just attending classes/work.\n\nDeveloped with ❤️ by side_end.dev.'
-//     );
-//   };
-
-//   return (
-//     <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
-//       <View style={[styles.header, isDarkMode && styles.darkHeader]}>
-//         <Text style={[styles.title, isDarkMode && styles.darkText]}>Settings</Text>
-//       </View>
-
-//       <View style={styles.content}>
-//         <View style={styles.section}>
-//           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Appearance</Text>
-          
-//           <View style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}>
-//             <View style={styles.settingLeft}>
-//               {isDarkMode ? (
-//                 <Moon size={20} color={isDarkMode ? '#FFFFFF' : '#374151'} />
-//               ) : (
-//                 <Sun size={20} color="#374151" />
-//               )}
-//               <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-//                 Dark Mode
-//               </Text>
-//             </View>
-//             <Switch
-//               value={darkMode}
-//               onValueChange={toggleDarkMode}
-//               trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
-//               thumbColor={isDarkMode ? '#FFFFFF' : '#F9FAFB'}
-//             />
-//           </View>
-//         </View>
-
-
-
-
-
-
-
-//         <View style={styles.section}>
-//           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Notifications</Text>
-          
-//           <View style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}>
-//             <View style={styles.settingLeft}>
-//               <Bell size={20} color={isDarkMode ? '#FFFFFF' : '#374151'} />
-//               <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-//                 Low Attendance Reminders
-//               </Text>
-//             </View>
-//             <Switch
-//               value={notificationsEnabled}
-//               onValueChange={toggleNotifications}
-//               trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
-//               thumbColor={notificationsEnabled ? '#FFFFFF' : '#F9FAFB'}
-//             />
-//           </View>
-//         </View>
-
-
-
-
-
-
-
-
-//         <View style={styles.section}>
-//           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Data</Text>
-          
-//           <TouchableOpacity 
-//             style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
-//             onPress={handleResetData}
-//           >
-//             <View style={styles.settingLeft}>
-//               <Trash2 size={20} color="#EF4444" />
-//               <Text style={[styles.settingText, styles.dangerText]}>
-//                 Reset All Data
-//               </Text>
-//             </View>
-//           </TouchableOpacity>
-//         </View>
-
-//         <View style={styles.section}>
-//           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Support</Text>
-          
-//           <TouchableOpacity 
-//             style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
-//             onPress={handleFeedback}
-//           >
-//             <View style={styles.settingLeft}>
-//               <MessageCircle size={20} color={isDarkMode ? '#FFFFFF' : '#374151'} />
-//               <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-//                 Feedback / Help
-//               </Text>
-//             </View>
-//           </TouchableOpacity>
-          
-//           <TouchableOpacity 
-//             style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
-//             onPress={handleAbout}
-//           >
-//             <View style={styles.settingLeft}>
-//               <Info size={20} color={isDarkMode ? '#FFFFFF' : '#374151'} />
-//               <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-//                 About
-//               </Text>
-//             </View>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#F9FAFB',
-//   },
-//   darkContainer: {
-//     backgroundColor: '#111827',
-//   },
-//   header: {
-//     padding: 20,
-//     backgroundColor: '#FFFFFF',
-//     borderBottomWidth: 1,
-//     borderBottomColor: '#E5E7EB',
-//   },
-//   darkHeader: {
-//     backgroundColor: '#1F2937',
-//     borderBottomColor: '#374151',
-//   },
-//   title: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     color: '#1F2937',
-//     textAlign: 'center',
-//   },
-//   darkText: {
-//     color: '#FFFFFF',
-//   },
-//   content: {
-//     flex: 1,
-//     padding: 20,
-//   },
-//   section: {
-//     marginBottom: 30,
-//   },
-//   sectionTitle: {
-//     fontSize: 16,
-//     fontWeight: '600',
-//     color: '#374151',
-//     marginBottom: 15,
-//   },
-//   settingItem: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     backgroundColor: '#FFFFFF',
-//     padding: 16,
-//     borderRadius: 8,
-//     marginBottom: 8,
-//     borderWidth: 1,
-//     borderColor: '#E5E7EB',
-//   },
-//   darkSettingItem: {
-//     backgroundColor: '#1F2937',
-//     borderColor: '#374151',
-//   },
-//   settingLeft: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     flex: 1,
-//   },
-//   settingText: {
-//     fontSize: 16,
-//     color: '#374151',
-//     marginLeft: 12,
-//   },
-//   dangerText: {
-//     color: '#EF4444',
-//   },
-// });
-
-
-
-
+// mobile-app/app/(tabs)/settings.tsx
 
 import React, { useState } from 'react';
 import {
@@ -227,6 +10,7 @@ import {
   Alert,
   Modal,
   Linking,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -236,8 +20,13 @@ import {
   Trash2,
   Info,
   MessageCircle,
+  Shield,
+  Clock,
+  Sparkles,
+  Percent,
 } from 'lucide-react-native';
 import { useApp } from '@/context/AppContext';
+import { DropdownPicker } from '@/components/DropdownPicker';
 
 export default function SettingsScreen() {
   const {
@@ -245,22 +34,23 @@ export default function SettingsScreen() {
     toggleDarkMode,
     notificationsEnabled,
     toggleNotifications,
+    globalTargetPercentage,
+    setGlobalTargetPercentage,
     resetAllData,
     isDarkMode,
   } = useApp();
 
-  const [modalVisible, setModalVisible] = useState(false); // ✅
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
-
 
   const handleResetData = () => {
     Alert.alert(
       'Reset All Data',
-      'Are you sure you want to delete all subjects and attendance data? This action cannot be undone.',
+      'Are you sure you want to delete all subjects, timetable slots, and attendance records? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Reset',
+          text: 'Reset Everything',
           style: 'destructive',
           onPress: resetAllData,
         },
@@ -268,103 +58,115 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleFeedback = () => {
-    setModalVisible(true); // ✅ Open modal instead of alert
-  };
-
-  // const handleAbout = () => {
-  //   Alert.alert(
-  //     'About Should I Bunk',
-  //     'Version 1.0.1\n\nHelping people to manage attendance responsibly to do something productive other than just attending classes/work.\n\nDeveloped with ❤️ by side_end.dev.'
-  //   );
-  // };
-
-  const handleAbout = () => {
-  setAboutModalVisible(true);
-  };
-
-
   const handleSendEmail = () => {
-    Linking.openURL('mailto:nikunjnehu@gmail.com?subject=Should I Bunk Feedback');
+    Linking.openURL('mailto:nikunjnehu@gmail.com?subject=Should I Bunk v2 Feedback');
   };
-
-  const [showDarkModeCard, setShowDarkModeCard] = useState(false);
-
-  
 
   return (
-    <SafeAreaView
-      style={[styles.container, isDarkMode && styles.darkContainer]}>
+    <SafeAreaView style={[styles.container, isDarkMode && styles.darkContainer]}>
+      {/* Header */}
       <View style={[styles.header, isDarkMode && styles.darkHeader]}>
-        <Text style={[styles.title, isDarkMode && styles.darkText]}>
-          Settings
-        </Text>
+        <Text style={[styles.title, isDarkMode && styles.darkText]}>Settings</Text>
       </View>
 
-      <View style={styles.content}>
-        {/* Appearance */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        {/* Appearance Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Appearance</Text>
+
+          <View style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}>
+            <View style={styles.settingLeft}>
+              {isDarkMode ? <Moon size={20} color="#3B82F6" /> : <Sun size={20} color="#F59E0B" />}
+              <View style={styles.settingTextWrap}>
+                <Text style={[styles.settingText, isDarkMode && styles.darkText]}>Dark Mode</Text>
+                <Text style={[styles.settingSub, isDarkMode && styles.darkSubText]}>
+                  {isDarkMode ? 'Dark theme enabled' : 'Light theme enabled'}
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={darkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{ false: '#E2E8F0', true: '#3B82F6' }}
+              thumbColor={isDarkMode ? '#FFFFFF' : '#FFFFFF'}
+            />
+          </View>
+        </View>
+
+        {/* Smart Notifications Section */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Appearance
+            Smart Notifications
           </Text>
 
           <View style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}>
             <View style={styles.settingLeft}>
-              {isDarkMode ? (
-                <Moon size={20} color="#FFFFFF" />
-              ) : (
-                <Sun size={20} color="#374151" />
-              )}
-              <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-                Dark Mode
-              </Text>
+              <Bell size={20} color="#3B82F6" />
+              <View style={styles.settingTextWrap}>
+                <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
+                  Smart Attendance Alerts
+                </Text>
+                <Text style={[styles.settingSub, isDarkMode && styles.darkSubText]}>
+                  Morning briefing, pre-class reminders & danger alerts
+                </Text>
+              </View>
             </View>
             <Switch
-              value={darkMode}
-              onValueChange={() => {
-                toggleDarkMode();
-                setShowDarkModeCard(true);
-                setTimeout(() => setShowDarkModeCard(false), 2000); // auto hide after 2s
-              }}
-              trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
-              thumbColor={isDarkMode ? '#FFFFFF' : '#F9FAFB'}
+              value={notificationsEnabled}
+              onValueChange={toggleNotifications}
+              trackColor={{ false: '#E2E8F0', true: '#3B82F6' }}
+              thumbColor={notificationsEnabled ? '#FFFFFF' : '#FFFFFF'}
             />
           </View>
+
+          {notificationsEnabled && (
+            <View style={[styles.infoBanner, isDarkMode && styles.darkInfoBanner]}>
+              <Sparkles size={16} color="#3B82F6" />
+              <Text style={[styles.infoBannerText, isDarkMode && styles.darkSubText]}>
+                • Daily Briefing at 8:00 AM{'\n'}
+                • 10-Minute Pre-Class Alert with Safe Bunk buffer{'\n'}
+                • Instant trigger if a bunk drops you below target %
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Notifications */}
+        {/* Global Attendance Policy */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Notifications
+            Default Attendance Target
           </Text>
 
-          <View
-            style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
-          >
+          <View style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}>
             <View style={styles.settingLeft}>
-              <Bell size={20} color={isDarkMode ? '#FFFFFF' : '#374151'} />
-              <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-                Low Attendance Reminders
-              </Text>
+              <Percent size={20} color="#10B981" />
+              <View style={styles.settingTextWrap}>
+                <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
+                  University Minimum Target
+                </Text>
+                <Text style={[styles.settingSub, isDarkMode && styles.darkSubText]}>
+                  Used for safe buffer calculations (Currently: {globalTargetPercentage}%)
+                </Text>
+              </View>
             </View>
-            <Switch
-            
-              // value={notificationsEnabled}
-              // onValueChange={toggleNotifications}
+          </View>
 
-              value={false} // will be implemented later
-              onValueChange={() => {}}
-              trackColor={{ false: '#E5E7EB', true: '#3B82F6' }}
-              thumbColor={notificationsEnabled ? '#FFFFFF' : '#F9FAFB'}
+          <View style={styles.pickerWrap}>
+            <DropdownPicker
+              label="Select Default Percentage Target"
+              value={`${globalTargetPercentage}%`}
+              options={['65%', '70%', '75%', '80%', '85%', '90%']}
+              onValueChange={(val) => {
+                const num = parseInt(val.replace('%', ''), 10);
+                if (num) setGlobalTargetPercentage(num);
+              }}
             />
           </View>
         </View>
 
-        {/* Data */}
+        {/* Data & Reset */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Data
-          </Text>
+          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Data Management</Text>
 
           <TouchableOpacity
             style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
@@ -372,108 +174,87 @@ export default function SettingsScreen() {
           >
             <View style={styles.settingLeft}>
               <Trash2 size={20} color="#EF4444" />
-              <Text style={[styles.settingText, styles.dangerText]}>
-                Reset All Data
-              </Text>
+              <View style={styles.settingTextWrap}>
+                <Text style={[styles.settingText, styles.dangerText]}>Reset All Data</Text>
+                <Text style={[styles.settingSub, isDarkMode && styles.darkSubText]}>
+                  Erase all subjects, timetable, and attendance history
+                </Text>
+              </View>
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* Support */}
+        {/* Support & About */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-            Support
-          </Text>
+          <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>About & Support</Text>
 
           <TouchableOpacity
             style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
-            onPress={handleFeedback}
+            onPress={() => setHelpModalVisible(true)}
           >
             <View style={styles.settingLeft}>
-              <MessageCircle
-                size={20}
-                color={isDarkMode ? '#FFFFFF' : '#374151'}
-              />
+              <MessageCircle size={20} color={isDarkMode ? '#F8FAFC' : '#334155'} />
               <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-                Feedback / Help
+                How It Works & FAQ
               </Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.settingItem, isDarkMode && styles.darkSettingItem]}
-            onPress={handleAbout}
+            onPress={() => setAboutModalVisible(true)}
           >
             <View style={styles.settingLeft}>
-              <Info size={20} color={isDarkMode ? '#FFFFFF' : '#374151'} />
-              <Text style={[styles.settingText, isDarkMode && styles.darkText]}>
-                About
-              </Text>
+              <Info size={20} color={isDarkMode ? '#F8FAFC' : '#334155'} />
+              <Text style={[styles.settingText, isDarkMode && styles.darkText]}>About App</Text>
             </View>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
 
-      {/* ✅ Feedback / Help Modal */}
+      {/* Help / Guide Modal */}
       <Modal
-        visible={modalVisible}
+        visible={helpModalVisible}
         transparent
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => setHelpModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, isDarkMode && styles.darkModalCard]}>
             <Text style={[styles.modalTitle, isDarkMode && styles.darkText]}>
-              Help
+              How Should I Bunk Works
             </Text>
-            <Text style={[styles.modalText, isDarkMode && styles.darkText]}>
-                {`👉 How to use Should I Bunk:
-              • Add Subjects: Tap the ➕ icon to add each subject you want to track.
-              • Mark Attendance Daily: Open a subject and tap calendar dates to mark yourself present or absent.
-              • View Attendance Details: See your attendance %, total classes, and attended classes.
-              • Set Class Importance: Choose Low, Medium, or High importance for each subject.
-              • Add Professor Strictness: Pick how strict the professor is — Low, Medium, or High.
-              • Note Upcoming Tests: Toggle 'Upcoming Test' to Yes if you have one coming.
-              • Tap “Should I Bunk?”: Get a smart prediction if it’s safe to bunk today.
-              • Get Reminders: Enable Low Attendance Reminders in Settings.
-              • Export Reports: Use Export Reports to share subject-wise attendance.
-                
-              ❓ FAQ:
-              • Is my data saved online?
-                No — your data stays on your device only.
-              • How accurate is the prediction?
-                It’s an estimate based on your inputs — use common sense!
-              • Can I edit attendance later?
-                Yes — open the calendar and update any date.n
-              • What if my college has surprise tests?
-                Toggle Upcoming Test to Yes to be safer.
-              • Can I reset everything?
-                Yes — use Reset All Data in Settings.
-              • How do I give feedback?
-                Tap Send Feedback Email in this section anytime!
-                `}
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 350 }}>
+              <Text style={[styles.modalText, isDarkMode && styles.darkSubText]}>
+                {`👉 How to use Version 2.0:
+
+• Weekly Timetable:
+  Go to the Timetable tab to add your weekly class slots. Once configured, today's classes appear automatically on your Home screen!
+
+• 1-Tap Attendance Marking:
+  On the Home screen, tap 'Attended', 'Bunked', or 'Cancelled' directly for any class today.
+
+• Safe Bunk Buffer (B):
+  Calculated using exact mathematical formulas. If the buffer is +3, you can miss 3 consecutive classes and still stay above your target percentage.
+
+• Recovery Target (C):
+  If your attendance drops below target, the app calculates the exact number of consecutive classes you must attend to climb back into the safe zone.
+
+• Multi-Session Support:
+  Open any subject to see its calendar. You can log multiple slots (e.g. morning lecture + afternoon lab) on the same date!
+
+• Duty Leave (OD):
+  If you are away on official college duty or sports, mark Duty Leave so your attendance is not penalized.`}
               </Text>
+            </ScrollView>
 
-
-            <Text
-              style={[
-                styles.modalTitle,
-                { marginTop: 20 },
-                isDarkMode && styles.darkText,
-              ]}
-            >
-              Feedback
-            </Text>
-            <TouchableOpacity
-              style={styles.feedbackButton}
-              onPress={handleSendEmail}
-            >
-              <Text style={styles.feedbackButtonText}>Send Feedback Email</Text>
+            <TouchableOpacity style={styles.feedbackButton} onPress={handleSendEmail}>
+              <Text style={styles.feedbackButtonText}>Send Feedback / Suggestions</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
+              onPress={() => setHelpModalVisible(false)}
             >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -481,39 +262,33 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
+      {/* About Modal */}
       <Modal
         visible={aboutModalVisible}
         transparent
         animationType="slide"
         onRequestClose={() => setAboutModalVisible(false)}
->
+      >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, isDarkMode && styles.darkModalCard]}>
             <Text style={[styles.modalTitle, isDarkMode && styles.darkText]}>
-              About Should I Bunk
+              About Should I Bunk?
             </Text>
-            <Text style={[styles.modalText, isDarkMode && styles.darkText]}>
-              Version 1.0.0{'\n\n'}
-              Should I Bunk help people to manage attendance responsibly and smartly to do something productive other than just attending classes/work.{'\n\n'}
-              Developed with ❤️ by side_end.dev.
+            <Text style={[styles.modalText, isDarkMode && styles.darkSubText]}>
+              Version 2.0.0{'\n\n'}
+              Empowering college students to manage attendance responsibly, avoid debarment, and make the most out of university life.{'\n\n'}
+              Developed with ❤️ by Nikunj Maheshwari
             </Text>
-                  
+
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setAboutModalVisible(false)}
             >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
-                </View>
+          </View>
         </View>
       </Modal>
-    {showDarkModeCard && (
-      <View style={[styles.toastCard, isDarkMode && styles.darkToastCard]}>
-        <Text style={[styles.toastText, isDarkMode && styles.darkText]}>
-          it will remain in dark mode bro 😑 as we devs loves it
-        </Text>
-      </View>
-      )}  
     </SafeAreaView>
   );
 }
@@ -521,134 +296,154 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAFC',
   },
   darkContainer: {
-    backgroundColor: '#111827',
+    backgroundColor: '#0F172A',
   },
   header: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: '#F1F5F9',
   },
   darkHeader: {
-    backgroundColor: '#1F2937',
-    borderBottomColor: '#374151',
+    backgroundColor: '#1E293B',
+    borderBottomColor: '#334155',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    textAlign: 'center',
-  },
-  darkText: {
-    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
   },
   content: {
-    flex: 1,
-    padding: 20,
+    padding: 16,
+    paddingBottom: 40,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 15,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#64748B',
+    marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
+    padding: 14,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E2E8F0',
+    marginBottom: 8,
   },
   darkSettingItem: {
-    backgroundColor: '#1F2937',
-    borderColor: '#374151',
+    backgroundColor: '#1E293B',
+    borderColor: '#334155',
   },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  settingText: {
-    fontSize: 16,
-    color: '#374151',
+  settingTextWrap: {
     marginLeft: 12,
+    flex: 1,
+  },
+  settingText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  settingSub: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
   },
   dangerText: {
     color: '#EF4444',
   },
+  infoBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#EFF6FF',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  darkInfoBanner: {
+    backgroundColor: '#172554',
+  },
+  infoBannerText: {
+    fontSize: 12,
+    color: '#1E40AF',
+    lineHeight: 18,
+    flex: 1,
+  },
+  pickerWrap: {
+    marginTop: 4,
+  },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalCard: {
-    width: '85%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
     padding: 20,
   },
+  modalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxWidth: 420,
+  },
   darkModalCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#1E293B',
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 12,
   },
   modalText: {
-    fontSize: 14,
-    color: '#374151',
+    fontSize: 13,
+    color: '#334155',
+    lineHeight: 20,
+    marginBottom: 16,
   },
   feedbackButton: {
     backgroundColor: '#3B82F6',
-    padding: 12,
+    paddingVertical: 12,
     borderRadius: 8,
-    marginTop: 10,
+    alignItems: 'center',
+    marginBottom: 8,
   },
   feedbackButtonText: {
     color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 14,
   },
   closeButton: {
-    marginTop: 15,
-    alignSelf: 'center',
+    paddingVertical: 10,
+    alignItems: 'center',
   },
   closeButtonText: {
-    color: '#3B82F6',
+    color: '#64748B',
     fontWeight: '600',
+    fontSize: 14,
   },
-  toastCard: {
-  position: 'absolute',
-  bottom: 40,
-  left: 20,
-  right: 20,
-  backgroundColor: '#FFFFFF',
-  padding: 16,
-  borderRadius: 8,
-  borderWidth: 1,
-  borderColor: '#E5E7EB',
-  alignItems: 'center',
-},
-darkToastCard: {
-  backgroundColor: '#1F2937',
-  borderColor: '#374151',
-},
-toastText: {
-  color: '#374151',
-  fontSize: 14,
-  textAlign: 'center',
-},
-
+  darkText: {
+    color: '#F8FAFC',
+  },
+  darkSubText: {
+    color: '#94A3B8',
+  },
 });
