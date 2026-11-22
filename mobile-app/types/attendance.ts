@@ -10,11 +10,12 @@ export interface AttendanceRecord {
   id: string;
   date: string; // ISO format "YYYY-MM-DD"
   slotIndex: number; // 0, 1, 2... for multiple sessions on the same date
-  timeSlot?: string; // e.g. "09:00 - 10:00" or "Period 1"
+  timeSlot?: string; // e.g. "09:00 - 10:00" or "09:00"
   type: ClassType; // 'lecture' | 'lab' | 'tutorial'
   weight: number; // default: 1 (or 2 for double period/lab)
   status: AttendanceStatus;
   note?: string;
+  timetableSlotId?: string; // Unique 1-to-1 link to timetable slot
 }
 
 export interface TimetableSlot {
@@ -90,3 +91,65 @@ export const DAYS_OF_WEEK = [
   { id: 6, name: 'Saturday', short: 'Sat' },
   { id: 7, name: 'Sunday', short: 'Sun' },
 ];
+
+// --- PHASE 3 PREDICTION & SIMULATION TYPES ---
+
+export type BunkVerdict =
+  | 'SAFE_TO_BUNK'
+  | 'CAUTION_BORDERLINE'
+  | 'DO_NOT_BUNK'
+  | 'CRITICAL_DEFICIT';
+
+export interface RiskFactorItem {
+  name: string;
+  impact: 'positive' | 'negative' | 'neutral';
+  description: string;
+  weight: number;
+}
+
+export interface DetailedPredictionResult {
+  safeToBunk: boolean;
+  verdict: BunkVerdict;
+  safetyScore: number; // 0 - 100%
+  headline: string;
+  tacticalAdvice: string;
+  currentPercentage: number;
+  projectedPercentageAfterBunk: number;
+  currentBuffer: number;
+  projectedBufferAfterBunk: number;
+  classesNeededToRecover: number;
+  riskFactors: RiskFactorItem[];
+  simulationQuickSummary: {
+    maxConsecutiveBunksAllowed: number;
+    classesToRecoverIfBunked: number;
+  };
+}
+
+export interface BunkSimulationPoint {
+  bunksCount: number;
+  totalClasses: number;
+  attendedClasses: number;
+  projectedPercentage: number;
+  bufferRemaining: number;
+  classesToRecover: number;
+  status: 'safe' | 'warning' | 'danger';
+}
+
+export interface RecoverySimulationPoint {
+  classesAttendedCount: number;
+  totalClasses: number;
+  attendedClasses: number;
+  projectedPercentage: number;
+  isTargetReached: boolean;
+  bufferAchieved: number;
+}
+
+export interface SemesterForecast {
+  estimatedRemaining: number;
+  plannedBunks: number;
+  bestCasePercentage: number;
+  worstCasePercentage: number;
+  plannedCasePercentage: number;
+  maxBunksAllowedInRemaining: number;
+  canAchieveTarget: boolean;
+}

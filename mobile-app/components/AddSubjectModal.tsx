@@ -13,7 +13,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { X, Plus, Sparkles } from 'lucide-react-native';
+import { X, Plus, Sparkles, Check } from 'lucide-react-native';
 import { useApp } from '@/context/AppContext';
 import { DropdownPicker } from '@/components/DropdownPicker';
 import { ImportanceLevel, StrictnessLevel, AttendanceMethod } from '@/types/attendance';
@@ -181,7 +181,7 @@ export function AddSubjectModal({ visible, onClose }: AddSubjectModalProps) {
                 onPress={() => setIsMidSemester(!isMidSemester)}
               >
                 <View style={[styles.checkbox, isMidSemester && styles.checkboxActive]}>
-                  {isMidSemester && <Text style={styles.checkMark}>✓</Text>}
+                  {isMidSemester && <Check size={14} color="#FFFFFF" />}
                 </View>
                 <View style={styles.toggleTextContainer}>
                   <Text style={[styles.toggleTitle, isDarkMode && styles.darkText]}>

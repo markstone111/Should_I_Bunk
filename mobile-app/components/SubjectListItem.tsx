@@ -64,43 +64,61 @@ export const SubjectListItem: React.FC<SubjectItemProps> = ({ subject, onPress, 
         {/* Header row: Name + Code + Percentage */}
         <View style={styles.headerRow}>
           <View style={styles.titleArea}>
-            <Text style={[styles.name, isDarkMode && styles.darkText]} numberOfLines={1}>
-              {subject.name}
+            <Text
+              style={[styles.name, isDarkMode && styles.darkText]}
+              numberOfLines={1}
+              textBreakStrategy="simple"
+            >
+              {subject.name}{' '}
             </Text>
             {subject.code ? (
-              <Text style={[styles.code, isDarkMode && styles.darkSubText]}>{subject.code}</Text>
+              <Text
+                style={[styles.code, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                {subject.code}{' '}
+              </Text>
             ) : null}
           </View>
 
           <View style={styles.percentageBadge}>
-            <Text style={[styles.percentageValue, { color: percentageColor }]}>
-              {stats.percentage}%
+            <Text
+              style={[styles.percentageValue, { color: percentageColor }]}
+              textBreakStrategy="simple"
+            >
+              {stats.percentage}%{' '}
             </Text>
-            <Text style={[styles.targetLabel, isDarkMode && styles.darkSubText]}>
-              Target: {stats.targetPercentage}%
+            <Text
+              style={[styles.targetLabel, isDarkMode && styles.darkSubText]}
+              textBreakStrategy="simple"
+            >
+              Target: {stats.targetPercentage}%{' '}
             </Text>
           </View>
         </View>
 
         {/* Attendance stats counts */}
         <View style={styles.statsRow}>
-          <Text style={[styles.statsText, isDarkMode && styles.darkSubText]}>
-            {stats.attendedClasses} / {stats.totalClasses} attended
+          <Text
+            style={[styles.statsText, isDarkMode && styles.darkSubText]}
+            textBreakStrategy="simple"
+          >
+            {stats.attendedClasses} / {stats.totalClasses} attended{' '}
           </Text>
 
           {/* Buffer or Deficit Badge */}
           {stats.status === 'safe' ? (
             <View style={styles.bufferBadgeSafe}>
               <CheckCircle2 size={12} color="#10B981" />
-              <Text style={styles.bufferTextSafe}>
-                {stats.safeBunks > 0 ? `Can bunk ${stats.safeBunks}` : 'On track'}
+              <Text style={styles.bufferTextSafe} textBreakStrategy="simple">
+                {stats.safeBunks > 0 ? `Can bunk ${stats.safeBunks}` : 'On track'}{' '}
               </Text>
             </View>
           ) : (
             <View style={styles.bufferBadgeDanger}>
               <AlertCircle size={12} color="#EF4444" />
-              <Text style={styles.bufferTextDanger}>
-                Attend next {stats.classesToAttend}
+              <Text style={styles.bufferTextDanger} textBreakStrategy="simple">
+                Attend next {stats.classesToAttend}{' '}
               </Text>
             </View>
           )}
@@ -208,15 +226,21 @@ const styles = StyleSheet.create({
   },
   percentageBadge: {
     alignItems: 'flex-end',
+    minWidth: 80,
+    flexShrink: 0,
+    paddingLeft: 6,
   },
   percentageValue: {
     fontSize: 18,
     fontWeight: '800',
+    includeFontPadding: false,
   },
   targetLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#94A3B8',
     marginTop: 2,
+    includeFontPadding: false,
+    textAlign: 'right',
   },
   statsRow: {
     flexDirection: 'row',

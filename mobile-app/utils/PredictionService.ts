@@ -1,4 +1,9 @@
-interface PredictionInput {
+// mobile-app/utils/PredictionService.ts
+
+import { Subject, DetailedPredictionResult } from '@/types/attendance';
+import { evaluateBunkDecision, EvaluateBunkOptions } from '@/utils/predictionEngine';
+
+export interface LegacyPredictionInput {
   attendance_percentage: number;
   total_classes: number;
   classes_attended: number;
@@ -7,75 +12,50 @@ interface PredictionInput {
   professor_strictness: string;
 }
 
-interface PredictionOutput {
+export interface LegacyPredictionOutput {
   safe_to_bunk: boolean;
   probability: number;
   advice: string;
+  detailedResult?: DetailedPredictionResult;
 }
 
 export class PredictionService {
-  private static readonly API_BASE_URL = 'https://bunk-predictor-api-vy14.onrender.com';
-
-
-  static async predict(input: PredictionInput): Promise<PredictionOutput> {
-    try {
-      const response = await fetch(`${this.API_BASE_URL}/predict`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(input),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Prediction error:', error);
-      return this.localPredict(input);
-    }
+  /**
+   * Main v2 Zero-Failure Evaluation
+   * Evaluates directly from the rich Subject domain model.
+   */
+  static evaluate(
+    subject: Subject,
+    options?: EvaluateBunkOptions
+  ): DetailedPredictionResult {
+    return evaluateBunkDecision(subject, options);
   }
 
-  private static localPredict(input: PredictionInput): PredictionOutput {
-    // Simple local prediction algorithm as fallback
-    let score = input.attendance_percentage / 100;
+  /**
+   * Legacy adapter for backward compatibility
+   */
+  static async predict(input: LegacyPredictionInput): Promise<LegacyPredictionOutput> {
+    // Construct a temporary subject model for evaluation
+    const mockSubject: Subject = {
+      id: 'temp-predict',
+      name: 'Subject',
+      targetPercentage: 75,
+      importance: (input.class_importance as any) || 'Medium',
+      professorStrictness: (input.professor_strictness as any) || 'Medium',
+      attendanceMethod: 'roll_call',
+      hasUpcomingTest: Boolean(input.upcoming_test),
+      attendanceRecords: [],
+      totalClasses: input.total_classes,
+      attendedClasses: input.classes_attended,
+    };
 
-    // Adjust based on factors
-    if (input.class_importance === 'High') score -= 0.3;
-    else if (input.class_importance === 'Low') score += 0.2;
-
-    if (input.upcoming_test) score -= 0.4;
-
-    if (input.professor_strictness === 'High') score -= 0.2;
-    else if (input.professor_strictness === 'Low') score += 0.1;
-
-    // Ensure score is between 0 and 1
-    score = Math.max(0, Math.min(1, score));
-
-    const safe_to_bunk = score > 0.6;
-    const probability = safe_to_bunk ? score : 1 - score;
-
-    let advice = '';
-    if (safe_to_bunk) {
-      if (score > 0.8) {
-        advice = 'You have excellent attendance! Safe to take a break.';
-      } else {
-        advice = 'Safe to bunk, but monitor your attendance carefully.';
-      }
-    } else {
-      if (score < 0.3) {
-        advice = 'Your attendance is critically low. Attend this class!';
-      } else {
-        advice = 'Better to attend this class to maintain good attendance.';
-      }
-    }
+    const detailed = evaluateBunkDecision(mockSubject);
 
     return {
-      safe_to_bunk,
-      probability,
-      advice,
+      safe_to_bunk: detailed.safeToBunk,
+      probability: detailed.safetyScore / 100,
+      advice: detailed.tacticalAdvice,
+      detailedResult: detailed,
     };
   }
 }

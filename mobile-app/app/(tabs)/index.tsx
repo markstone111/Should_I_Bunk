@@ -161,14 +161,14 @@ export default function HomeScreen() {
                       : styles.badgeCancelled,
                   ]}
                 >
-                  <Text style={styles.markedBadgeText}>
+                  <Text style={styles.markedBadgeText} textBreakStrategy="simple">
                     {todayRecord?.status === 'present'
-                      ? '✓ Marked Present'
+                      ? 'Present'
                       : todayRecord?.status === 'absent'
-                      ? '✗ Marked Bunked'
+                      ? 'Bunked'
                       : todayRecord?.status === 'duty_leave'
-                      ? '🎖️ Marked Duty (OD)'
-                      : '🚫 Marked Cancelled'}
+                      ? 'Duty Leave (OD)'
+                      : 'Cancelled'}{' '}
                   </Text>
                 </View>
 
@@ -287,20 +287,23 @@ export default function HomeScreen() {
                   >
                     {overallStats.overallPercentage}%
                   </Text>
-                  <Text style={[styles.statSub, isDarkMode && styles.darkSubText]}>
-                    Overall ({overallStats.attendedClasses}/{overallStats.totalClasses})
+                  <Text style={[styles.statSub, isDarkMode && styles.darkSubText]} textBreakStrategy="simple">
+                    Overall{' '}
                   </Text>
                 </View>
 
                 <View style={styles.statBox}>
                   <View style={styles.rowInline}>
                     <ShieldCheck size={16} color="#3B82F6" />
-                    <Text style={[styles.statNumber, { color: '#3B82F6', marginLeft: 4 }]}>
-                      {overallStats.totalSafeBunksAvailable}
+                    <Text
+                      style={[styles.statNumber, { color: '#3B82F6', marginLeft: 4 }]}
+                      textBreakStrategy="simple"
+                    >
+                      {overallStats.totalSafeBunksAvailable}{' '}
                     </Text>
                   </View>
-                  <Text style={[styles.statSub, isDarkMode && styles.darkSubText]}>
-                    Safe Bunk Buffer
+                  <Text style={[styles.statSub, isDarkMode && styles.darkSubText]} textBreakStrategy="simple">
+                    Safe Bunks{' '}
                   </Text>
                 </View>
 
@@ -318,12 +321,13 @@ export default function HomeScreen() {
                           marginLeft: 4,
                         },
                       ]}
+                      textBreakStrategy="simple"
                     >
-                      {overallStats.dangerSubjectsCount}
+                      {overallStats.dangerSubjectsCount}{' '}
                     </Text>
                   </View>
-                  <Text style={[styles.statSub, isDarkMode && styles.darkSubText]}>
-                    In Danger Zone
+                  <Text style={[styles.statSub, isDarkMode && styles.darkSubText]} textBreakStrategy="simple">
+                    In Danger{' '}
                   </Text>
                 </View>
               </View>

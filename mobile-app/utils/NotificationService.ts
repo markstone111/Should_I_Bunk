@@ -71,7 +71,7 @@ export class NotificationService {
 
       let body = `You have ${classesCount} classes scheduled today.`;
       if (dangerCount > 0) {
-        body += ` ⚠️ ${dangerCount} subject(s) in danger zone!`;
+        body += ` Warning: ${dangerCount} subject(s) in danger zone.`;
       } else {
         body += ` Safe bunks available: ${safeBunks}.`;
       }
@@ -79,7 +79,7 @@ export class NotificationService {
       await Notifications.scheduleNotificationAsync({
         identifier: 'daily-morning-briefing',
         content: {
-          title: '☀️ Good Morning • Should I Bunk?',
+          title: 'Morning Attendance Briefing',
           body,
           sound: true,
           data: { type: 'morning_briefing' },
@@ -108,8 +108,8 @@ export class NotificationService {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: '🚨 Danger Zone Triggered!',
-          body: `Your attendance in "${subjectName}" dropped to ${currentPercentage}% (Target: ${targetPercentage}%). Bunking is strictly prohibited!`,
+          title: 'Attendance Warning: Target Breached',
+          body: `Your attendance in "${subjectName}" dropped to ${currentPercentage}% (Target: ${targetPercentage}%). Attendance required to avoid debarment.`,
           sound: true,
           data: { type: 'danger_alert', subjectName },
         },
@@ -148,14 +148,14 @@ export class NotificationService {
 
       const bufferMsg =
         safeBunks > 0
-          ? `Safe buffer: ${safeBunks} bunks available ✅`
-          : `Zero buffer: Attend to maintain % ⚠️`;
+          ? `Safe buffer: ${safeBunks} bunks available`
+          : `Zero buffer: Attend to maintain target percentage`;
 
       await Notifications.scheduleNotificationAsync({
         identifier: `class-reminder-${slot.id}`,
         content: {
-          title: `🔔 Upcoming: ${subjectName} (${slot.type.toUpperCase()})`,
-          body: `Class starts in 10 minutes at ${slot.startTime}. ${bufferMsg}`,
+          title: `Upcoming: ${subjectName} (${slot.type.toUpperCase()})`,
+          body: `Class starts in 10 minutes at ${slot.startTime}. ${bufferMsg}.`,
           sound: true,
           data: { type: 'class_reminder', slotId: slot.id },
         },

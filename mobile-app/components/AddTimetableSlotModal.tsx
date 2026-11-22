@@ -14,6 +14,10 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { X, Plus, Calendar, Clock, MapPin } from 'lucide-react-native';
+import DateTimePicker, {
+  DateTimePickerAndroid,
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import { useApp } from '@/context/AppContext';
 import { DropdownPicker } from '@/components/DropdownPicker';
 import { ClassType, DAYS_OF_WEEK } from '@/types/attendance';
@@ -40,8 +44,42 @@ export function AddTimetableSlotModal({
   const [endTime, setEndTime] = useState('10:00');
   const [classType, setClassType] = useState<ClassType>('lecture');
   const [room, setRoom] = useState('');
+  const [iosPickerTarget, setIosPickerTarget] = useState<'start' | 'end' | null>(null);
 
   const selectedSubject = activeSubjects.find((s) => s.id === selectedSubjectId);
+
+  const openTimePicker = (mode: 'start' | 'end') => {
+    const currentTime = mode === 'start' ? startTime : endTime;
+    const parts = currentTime.split(':');
+    const hours = parseInt(parts[0], 10) || (mode === 'start' ? 9 : 10);
+    const minutes = parseInt(parts[1], 10) || 0;
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: date,
+        onChange: (event: DateTimePickerEvent, selectedDate?: Date) => {
+          if (event.type === 'set' && selectedDate) {
+            const h = selectedDate.getHours().toString().padStart(2, '0');
+            const m = selectedDate.getMinutes().toString().padStart(2, '0');
+            const formatted = `${h}:${m}`;
+            if (mode === 'start') {
+              setStartTime(formatted);
+              const endH = ((selectedDate.getHours() + 1) % 24).toString().padStart(2, '0');
+              setEndTime(`${endH}:${m}`);
+            } else {
+              setEndTime(formatted);
+            }
+          }
+        },
+        mode: 'time',
+        is24Hour: true,
+      });
+    } else {
+      setIosPickerTarget(mode);
+    }
+  };
 
   const handleSave = () => {
     if (!selectedSubjectId || !startTime.trim()) return;
@@ -104,32 +142,76 @@ export function AddTimetableSlotModal({
                 }}
               />
 
-              {/* Time Slots (Start Time & End Time) */}
+              {/* Time Slots (Start Time & End Time using Native Time Picker) */}
               <View style={styles.row}>
                 <View style={styles.halfCol}>
-                  <Text style={[styles.label, isDarkMode && styles.darkText]}>Start Time (HH:MM)</Text>
-                  <TextInput
-                    style={[styles.input, isDarkMode && styles.darkInput]}
-                    placeholder="09:00"
-                    placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-                    value={startTime}
-                    onChangeText={setStartTime}
-                    maxLength={5}
-                  />
+                  <Text style={[styles.label, isDarkMode && styles.darkText]} textBreakStrategy="simple">
+                    Start Time{' '}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.timePickerBtn, isDarkMode && styles.darkTimePickerBtn]}
+                    onPress={() => openTimePicker('start')}
+                    activeOpacity={0.7}
+                  >
+                    <Clock size={16} color="#3B82F6" />
+                    <Text
+                      style={[styles.timePickerText, isDarkMode && styles.darkText]}
+                      textBreakStrategy="simple"
+                    >
+                      {startTime}{' '}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.halfCol}>
-                  <Text style={[styles.label, isDarkMode && styles.darkText]}>End Time (HH:MM)</Text>
-                  <TextInput
-                    style={[styles.input, isDarkMode && styles.darkInput]}
-                    placeholder="10:00"
-                    placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-                    value={endTime}
-                    onChangeText={setEndTime}
-                    maxLength={5}
-                  />
+                  <Text style={[styles.label, isDarkMode && styles.darkText]} textBreakStrategy="simple">
+                    End Time{' '}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.timePickerBtn, isDarkMode && styles.darkTimePickerBtn]}
+                    onPress={() => openTimePicker('end')}
+                    activeOpacity={0.7}
+                  >
+                    <Clock size={16} color="#3B82F6" />
+                    <Text
+                      style={[styles.timePickerText, isDarkMode && styles.darkText]}
+                      textBreakStrategy="simple"
+                    >
+                      {endTime}{' '}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
+
+              {/* iOS DateTimePicker Fallback */}
+              {Platform.OS === 'ios' && iosPickerTarget && (
+                <DateTimePicker
+                  value={(() => {
+                    const t = iosPickerTarget === 'start' ? startTime : endTime;
+                    const parts = t.split(':');
+                    const h = parseInt(parts[0], 10) || (iosPickerTarget === 'start' ? 9 : 10);
+                    const m = parseInt(parts[1], 10) || 0;
+                    const d = new Date();
+                    d.setHours(h, m, 0, 0);
+                    return d;
+                  })()}
+                  mode="time"
+                  is24Hour={true}
+                  display="spinner"
+                  onChange={(_e, selectedDate) => {
+                    setIosPickerTarget(null);
+                    if (selectedDate) {
+                      const h = selectedDate.getHours().toString().padStart(2, '0');
+                      const m = selectedDate.getMinutes().toString().padStart(2, '0');
+                      if (iosPickerTarget === 'start') {
+                        setStartTime(`${h}:${m}`);
+                      } else {
+                        setEndTime(`${h}:${m}`);
+                      }
+                    }
+                  }}
+                />
+              )}
 
               {/* Class Type */}
               <DropdownPicker
@@ -257,6 +339,27 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
     backgroundColor: '#0F172A',
     color: '#F8FAFC',
+  },
+  timePickerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: '#F8FAFC',
+    marginBottom: 16,
+  },
+  darkTimePickerBtn: {
+    borderColor: '#334155',
+    backgroundColor: '#0F172A',
+  },
+  timePickerText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   row: {
     flexDirection: 'row',

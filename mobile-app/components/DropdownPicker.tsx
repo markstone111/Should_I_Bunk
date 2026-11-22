@@ -23,21 +23,34 @@ export function DropdownPicker({ label, value, options, onValueChange }: Dropdow
     <TouchableOpacity
       style={[styles.option, item === value && styles.selectedOption]}
       onPress={() => handleSelect(item)}
+      activeOpacity={0.7}
     >
-      <Text style={[styles.optionText, item === value && styles.selectedOptionText]}>
-        {item}
+      <Text
+        style={[styles.optionText, item === value && styles.selectedOptionText]}
+        textBreakStrategy="simple"
+      >
+        {item}{' '}
       </Text>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, isDarkMode && styles.darkText]}>{label}</Text>
+      <Text style={[styles.label, isDarkMode && styles.darkText]} textBreakStrategy="simple">
+        {label}{' '}
+      </Text>
       <TouchableOpacity
         style={[styles.picker, isDarkMode && styles.darkPicker]}
         onPress={() => setModalVisible(true)}
+        activeOpacity={0.7}
       >
-        <Text style={[styles.pickerText, isDarkMode && styles.darkText]}>{value}</Text>
+        <Text
+          style={[styles.pickerText, isDarkMode && styles.darkText]}
+          numberOfLines={1}
+          textBreakStrategy="simple"
+        >
+          {value}{' '}
+        </Text>
         <ChevronDown size={20} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
       </TouchableOpacity>
 
@@ -49,7 +62,12 @@ export function DropdownPicker({ label, value, options, onValueChange }: Dropdow
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, isDarkMode && styles.darkModalContent]}>
-            <Text style={[styles.modalTitle, isDarkMode && styles.darkText]}>{label}</Text>
+            <Text
+              style={[styles.modalTitle, isDarkMode && styles.darkText]}
+              textBreakStrategy="simple"
+            >
+              {label}{' '}
+            </Text>
             <FlatList
               data={options}
               renderItem={renderOption}
@@ -91,8 +109,11 @@ const styles = StyleSheet.create({
     borderColor: '#374151',
   },
   pickerText: {
+    flex: 1,
     fontSize: 16,
     color: '#374151',
+    marginRight: 8,
+    paddingRight: 4,
   },
   modalOverlay: {
     flex: 1,
@@ -102,37 +123,39 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 20,
-    width: '80%',
-    maxHeight: '60%',
+    width: '88%',
+    maxWidth: 360,
+    maxHeight: '65%',
   },
   darkModalContent: {
     backgroundColor: '#1F2937',
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#374151',
     marginBottom: 15,
     textAlign: 'center',
   },
   option: {
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    marginBottom: 5,
+    marginBottom: 6,
   },
   selectedOption: {
     backgroundColor: '#3B82F6',
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#374151',
     textAlign: 'center',
+    paddingHorizontal: 4,
   },
   selectedOptionText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
