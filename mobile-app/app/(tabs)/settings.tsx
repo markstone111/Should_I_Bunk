@@ -226,10 +226,10 @@ export default function SettingsScreen() {
             </Text>
             <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 350 }}>
               <Text style={[styles.modalText, isDarkMode && styles.darkSubText]}>
-                {`👉 How to use Version 2.0:
+                {`How to use Version 2.0:
 
 • Weekly Timetable:
-  Go to the Timetable tab to add your weekly class slots. Once configured, today's classes appear automatically on your Home screen!
+  Go to the Timetable tab to add your weekly class slots. Once configured, today's classes appear automatically on your Home screen.
 
 • 1-Tap Attendance Marking:
   On the Home screen, tap 'Attended', 'Bunked', or 'Cancelled' directly for any class today.
@@ -241,7 +241,7 @@ export default function SettingsScreen() {
   If your attendance drops below target, the app calculates the exact number of consecutive classes you must attend to climb back into the safe zone.
 
 • Multi-Session Support:
-  Open any subject to see its calendar. You can log multiple slots (e.g. morning lecture + afternoon lab) on the same date!
+  Open any subject to see its calendar. You can log multiple slots (e.g. morning lecture + afternoon lab) on the same date.
 
 • Duty Leave (OD):
   If you are away on official college duty or sports, mark Duty Leave so your attendance is not penalized.`}
@@ -277,7 +277,7 @@ export default function SettingsScreen() {
             <Text style={[styles.modalText, isDarkMode && styles.darkSubText]}>
               Version 2.0.0{'\n\n'}
               Empowering college students to manage attendance responsibly, avoid debarment, and make the most out of university life.{'\n\n'}
-              Developed with ❤️ by Nikunj Maheshwari
+              Developed by Nikunj Maheshwari
             </Text>
 
             <TouchableOpacity

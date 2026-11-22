@@ -25,6 +25,12 @@ import {
   AlertTriangle,
   MinusCircle,
   Check,
+  Sliders,
+  Sparkles,
+  ShieldAlert,
+  ShieldCheck,
+  TrendingDown,
+  ChevronRight,
 } from 'lucide-react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
 import { useApp } from '@/context/AppContext';
@@ -32,7 +38,12 @@ import { DropdownPicker } from '@/components/DropdownPicker';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
 import { PredictionService } from '@/utils/PredictionService';
 import { calculateSubjectStats, getRecordsForDate } from '@/utils/attendanceCalculator';
-import { AttendanceRecord, AttendanceStatus, ClassType } from '@/types/attendance';
+import {
+  AttendanceRecord,
+  AttendanceStatus,
+  ClassType,
+  DetailedPredictionResult,
+} from '@/types/attendance';
 
 export default function SubjectScreen() {
   const { id } = useLocalSearchParams();
@@ -48,7 +59,7 @@ export default function SubjectScreen() {
 
   const todayStr = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(todayStr);
-  const [predictionResult, setPredictionResult] = useState<any>(null);
+  const [predictionResult, setPredictionResult] = useState<DetailedPredictionResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Modal for adding a custom session
@@ -168,14 +179,7 @@ export default function SubjectScreen() {
   const handlePrediction = async () => {
     setLoading(true);
     try {
-      const result = await PredictionService.predict({
-        attendance_percentage: stats.percentage,
-        total_classes: stats.totalClasses,
-        classes_attended: stats.attendedClasses,
-        class_importance: subject.importance,
-        upcoming_test: subject.hasUpcomingTest,
-        professor_strictness: subject.professorStrictness,
-      });
+      const result = PredictionService.evaluate(subject);
       setPredictionResult(result);
     } catch (error) {
       Alert.alert('Error', 'Failed to generate bunk prediction. Please try again.');
@@ -197,10 +201,20 @@ export default function SubjectScreen() {
             {subject.name}
           </Text>
           {subject.code ? (
-            <Text style={[styles.headerSub, isDarkMode && styles.darkSubText]}>
-              {subject.code} • Target {subject.targetPercentage}%
+            <Text
+              style={[styles.headerSub, isDarkMode && styles.darkSubText]}
+              textBreakStrategy="simple"
+            >
+              {subject.code} • Target {subject.targetPercentage}%{' '}
             </Text>
-          ) : null}
+          ) : (
+            <Text
+              style={[styles.headerSub, isDarkMode && styles.darkSubText]}
+              textBreakStrategy="simple"
+            >
+              Target {subject.targetPercentage}%{' '}
+            </Text>
+          )}
         </View>
 
         <View style={{ width: 22 }} />
@@ -256,16 +270,57 @@ export default function SubjectScreen() {
           </View>
         </View>
 
+        {/* Interactive What-If Simulator Launcher Banner */}
+        <TouchableOpacity
+          style={[styles.simulatorBanner, isDarkMode && styles.darkSimulatorBanner]}
+          onPress={() =>
+            router.push({
+              pathname: '/simulator/[id]',
+              params: { id: subject.id },
+            } as any)
+          }
+          activeOpacity={0.8}
+        >
+          <View style={styles.simulatorBannerLeft}>
+            <View style={styles.simulatorIconWrap}>
+              <Sliders size={20} color="#3B82F6" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.simulatorTitleRow}>
+                <Text
+                  style={[styles.simulatorBannerTitle, isDarkMode && styles.darkText]}
+                  textBreakStrategy="simple"
+                >
+                  What-If Bunk Simulator{' '}
+                </Text>
+              </View>
+              <Text
+                style={[styles.simulatorBannerSub, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                Simulate missed classes, recovery ladders & end-of-term forecast{' '}
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={18} color={isDarkMode ? '#94A3B8' : '#64748B'} />
+        </TouchableOpacity>
+
         {/* Calendar Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <CalendarIcon size={18} color="#3B82F6" />
-            <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-              Attendance Calendar
+            <Text
+              style={[styles.sectionTitle, isDarkMode && styles.darkText]}
+              textBreakStrategy="simple"
+            >
+              Attendance Calendar{' '}
             </Text>
           </View>
-          <Text style={[styles.instructionText, isDarkMode && styles.darkSubText]}>
-            Tap any date to select or cycle attendance.
+          <Text
+            style={[styles.instructionText, isDarkMode && styles.darkSubText]}
+            textBreakStrategy="simple"
+          >
+            Tap any date to select or cycle attendance.{' '}
           </Text>
 
           <RNCalendar
@@ -292,19 +347,39 @@ export default function SubjectScreen() {
           <View style={styles.legend}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
-              <Text style={[styles.legendText, isDarkMode && styles.darkSubText]}>Present</Text>
+              <Text
+                style={[styles.legendText, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                Present{' '}
+              </Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
-              <Text style={[styles.legendText, isDarkMode && styles.darkSubText]}>Absent</Text>
+              <Text
+                style={[styles.legendText, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                Absent{' '}
+              </Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
-              <Text style={[styles.legendText, isDarkMode && styles.darkSubText]}>Duty Leave (OD)</Text>
+              <Text
+                style={[styles.legendText, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                Duty Leave (OD){' '}
+              </Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
-              <Text style={[styles.legendText, isDarkMode && styles.darkSubText]}>Cancelled</Text>
+              <Text
+                style={[styles.legendText, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                Cancelled{' '}
+              </Text>
             </View>
           </View>
         </View>
@@ -312,12 +387,18 @@ export default function SubjectScreen() {
         {/* Selected Date Session Manager (Solves multiple classes per day!) */}
         <View style={styles.section}>
           <View style={styles.dateHeaderRow}>
-            <View>
-              <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>
-                Classes on {selectedDate}
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text
+                style={[styles.sectionTitle, isDarkMode && styles.darkText]}
+                textBreakStrategy="simple"
+              >
+                Classes on {selectedDate}{' '}
               </Text>
-              <Text style={[styles.subLabel, isDarkMode && styles.darkSubText]}>
-                Tap status to cycle • Add multiple periods/labs
+              <Text
+                style={[styles.subLabel, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                Tap status to cycle • Add multiple periods/labs{' '}
               </Text>
             </View>
 
@@ -371,14 +452,17 @@ export default function SubjectScreen() {
                       style={[styles.statusBadge, { backgroundColor: statusColor + '20', borderColor: statusColor }]}
                       onPress={() => cycleStatus(record)}
                     >
-                      <Text style={[styles.statusBadgeText, { color: statusColor }]}>
+                      <Text
+                        style={[styles.statusBadgeText, { color: statusColor }]}
+                        textBreakStrategy="simple"
+                      >
                         {record.status === 'present'
-                          ? 'Present ✓'
+                          ? 'Present'
                           : record.status === 'absent'
-                          ? 'Absent ✗'
+                          ? 'Absent'
                           : record.status === 'duty_leave'
                           ? 'Duty (OD)'
-                          : 'Cancelled'}
+                          : 'Cancelled'}{' '}
                       </Text>
                     </TouchableOpacity>
 
@@ -443,24 +527,157 @@ export default function SubjectScreen() {
         </TouchableOpacity>
 
         {/* Prediction Result Display */}
-        {predictionResult && (
-          <View style={[styles.resultContainer, isDarkMode && styles.darkResultContainer]}>
-            <Text
-              style={[
-                styles.resultTitle,
-                { color: predictionResult.safe_to_bunk ? '#10B981' : '#EF4444' },
-              ]}
-            >
-              {predictionResult.safe_to_bunk ? '✅ Safe to Bunk' : '❌ Better Attend'}
-            </Text>
-            <Text style={[styles.resultPercentage, isDarkMode && styles.darkSubText]}>
-              Safety Confidence: {Math.round(predictionResult.probability * 100)}%
-            </Text>
-            <Text style={[styles.resultAdvice, isDarkMode && styles.darkText]}>
-              {predictionResult.advice}
-            </Text>
-          </View>
-        )}
+        {predictionResult && (() => {
+          const isSafe = predictionResult.safeToBunk;
+          const verdict = predictionResult.verdict;
+          const verdictColor =
+            verdict === 'SAFE_TO_BUNK'
+              ? '#10B981'
+              : verdict === 'CAUTION_BORDERLINE'
+              ? '#F59E0B'
+              : '#EF4444';
+
+          const verdictLabel =
+            verdict === 'SAFE_TO_BUNK'
+              ? 'Safe to Bunk'
+              : verdict === 'CAUTION_BORDERLINE'
+              ? 'Caution (Borderline)'
+              : verdict === 'DO_NOT_BUNK'
+              ? 'Do Not Bunk'
+              : 'Critical Deficit';
+
+          return (
+            <View style={[styles.resultCard, isDarkMode && styles.darkResultCard]}>
+              {/* Verdict Header Badge */}
+              <View style={styles.verdictHeader}>
+                <View style={[styles.verdictBadge, { backgroundColor: verdictColor + '20' }]}>
+                  {isSafe ? (
+                    <ShieldCheck size={16} color={verdictColor} />
+                  ) : (
+                    <ShieldAlert size={16} color={verdictColor} />
+                  )}
+                  <Text style={[styles.verdictBadgeText, { color: verdictColor }]}>
+                    {verdictLabel}
+                  </Text>
+                </View>
+
+                <Text style={[styles.scoreValue, { color: verdictColor }]}>
+                  {predictionResult.safetyScore}
+                  <Text style={styles.scoreMax}>/100</Text>
+                </Text>
+              </View>
+
+              {/* Safety Score Meter Bar */}
+              <View style={styles.scoreMeterTrack}>
+                <View
+                  style={[
+                    styles.scoreMeterFill,
+                    {
+                      width: `${Math.min(100, Math.max(5, predictionResult.safetyScore))}%`,
+                      backgroundColor: verdictColor,
+                    },
+                  ]}
+                />
+              </View>
+
+              {/* Headline & Advice */}
+              <Text style={[styles.resultHeadline, isDarkMode && styles.darkText]}>
+                {predictionResult.headline}
+              </Text>
+              <Text style={[styles.resultAdvice, isDarkMode && styles.darkSubText]}>
+                {predictionResult.tacticalAdvice}
+              </Text>
+
+              {/* Projection Comparison Box */}
+              <View style={[styles.projectionBox, isDarkMode && styles.darkProjectionBox]}>
+                <View style={styles.projectionCol}>
+                  <Text style={styles.projectionColLabel}>Current</Text>
+                  <Text style={[styles.projectionColVal, isDarkMode && styles.darkText]}>
+                    {predictionResult.currentPercentage}%
+                  </Text>
+                  <Text style={styles.projectionColSub}>
+                    Buffer: {predictionResult.currentBuffer}
+                  </Text>
+                </View>
+
+                <View style={styles.projectionArrowWrap}>
+                  <TrendingDown size={18} color="#EF4444" />
+                </View>
+
+                <View style={styles.projectionCol}>
+                  <Text style={styles.projectionColLabel}>If Missed</Text>
+                  <Text
+                    style={[
+                      styles.projectionColVal,
+                      {
+                        color:
+                          predictionResult.projectedPercentageAfterBunk >= subject.targetPercentage
+                            ? '#10B981'
+                            : '#EF4444',
+                      },
+                    ]}
+                  >
+                    {predictionResult.projectedPercentageAfterBunk}%
+                  </Text>
+                  <Text style={styles.projectionColSub}>
+                    Buffer: {predictionResult.projectedBufferAfterBunk}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Risk Factors List */}
+              {predictionResult.riskFactors && predictionResult.riskFactors.length > 0 && (
+                <View style={styles.riskFactorsContainer}>
+                  <Text style={[styles.riskFactorsTitle, isDarkMode && styles.darkText]}>
+                    Risk Factors Analyzed:
+                  </Text>
+                  {predictionResult.riskFactors.map((rf, idx) => (
+                    <View key={idx} style={styles.riskFactorRow}>
+                      <View
+                        style={[
+                          styles.riskFactorDot,
+                          {
+                            backgroundColor:
+                              rf.impact === 'positive'
+                                ? '#10B981'
+                                : rf.impact === 'negative'
+                                ? '#EF4444'
+                                : '#64748B',
+                          },
+                        ]}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.riskFactorName, isDarkMode && styles.darkText]}>
+                          {rf.name}
+                        </Text>
+                        <Text style={[styles.riskFactorDesc, isDarkMode && styles.darkSubText]}>
+                          {rf.description}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Launch Simulator Button */}
+              <TouchableOpacity
+                style={styles.openSimulatorButton}
+                onPress={() =>
+                  router.push({
+                    pathname: '/simulator/[id]',
+                    params: { id: subject.id },
+                  } as any)
+                }
+                activeOpacity={0.8}
+              >
+                <Sliders size={16} color="#FFFFFF" />
+                <Text style={styles.openSimulatorButtonText}>
+                  Explore In What-If Simulator
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
+        })()}
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -602,6 +819,50 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E293B',
     borderColor: '#334155',
   },
+  simulatorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 20,
+  },
+  darkSimulatorBanner: {
+    backgroundColor: '#1E293B',
+    borderColor: '#3B82F640',
+  },
+  simulatorBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  simulatorIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#DBEAFE',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  simulatorTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  simulatorBannerTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  simulatorBannerSub: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -663,6 +924,8 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 12,
     color: '#64748B',
+    paddingRight: 8,
+    includeFontPadding: false,
   },
   dateHeaderRow: {
     flexDirection: 'row',
@@ -777,34 +1040,150 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  resultContainer: {
+  resultCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 18,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    alignItems: 'center',
     marginBottom: 20,
   },
-  darkResultContainer: {
+  darkResultCard: {
     backgroundColor: '#1E293B',
     borderColor: '#334155',
   },
-  resultTitle: {
-    fontSize: 18,
+  verdictHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  verdictBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  verdictBadgeText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  scoreValue: {
+    fontSize: 20,
     fontWeight: '800',
+  },
+  scoreMax: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#94A3B8',
+  },
+  scoreMeterTrack: {
+    height: 8,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 14,
+  },
+  scoreMeterFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  resultHeadline: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
     marginBottom: 6,
   },
-  resultPercentage: {
-    fontSize: 13,
-    color: '#64748B',
-    marginBottom: 10,
-  },
   resultAdvice: {
-    fontSize: 14,
+    fontSize: 13,
+    color: '#475569',
+    lineHeight: 19,
+    marginBottom: 14,
+  },
+  projectionBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+  },
+  darkProjectionBox: {
+    backgroundColor: '#0F172A',
+  },
+  projectionCol: {
+    alignItems: 'center',
+  },
+  projectionColLabel: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  projectionColVal: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  projectionColSub: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 1,
+  },
+  projectionArrowWrap: {
+    paddingHorizontal: 8,
+  },
+  riskFactorsContainer: {
+    marginBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    paddingTop: 12,
+  },
+  riskFactorsTitle: {
+    fontSize: 13,
+    fontWeight: '700',
     color: '#334155',
-    textAlign: 'center',
-    lineHeight: 20,
+    marginBottom: 8,
+  },
+  riskFactorRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 6,
+  },
+  riskFactorDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 5,
+  },
+  riskFactorName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  riskFactorDesc: {
+    fontSize: 11,
+    color: '#64748B',
+    lineHeight: 15,
+  },
+  openSimulatorButton: {
+    backgroundColor: '#3B82F6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  openSimulatorButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
   errorContainer: {
     flex: 1,

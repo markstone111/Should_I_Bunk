@@ -426,10 +426,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const subject = state.subjects.find((s) => s.id === slot.subjectId);
       if (subject && !subject.isArchived) {
         const stats = calculateSubjectStats(subject);
-        const todayRecord = (subject.attendanceRecords || []).find(
-          (r) =>
-            r.date === todayStr &&
-            (r.timeSlot === slot.startTime || r.slotIndex === slot.dayOfWeek)
+        // Robust 1-to-1 match by unique timetableSlotId or exact startTime
+        const todayRecord = (subject.attendanceRecords || []).find((r) =>
+          r.date === todayStr &&
+          (r.timetableSlotId ? r.timetableSlotId === slot.id : r.timeSlot === slot.startTime)
         );
         items.push({
           slot,
@@ -605,20 +605,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const subject = state.subjects.find((s) => s.id === slot.subjectId);
     if (!subject) return;
 
-    const existingRecord = (subject.attendanceRecords || []).find(
-      (r) => r.date === todayStr && (r.timeSlot === slot.startTime || r.slotIndex === slot.dayOfWeek)
+    const existingRecordsForToday = (subject.attendanceRecords || []).filter(
+      (r) => r.date === todayStr
+    );
+
+    // Exact, unique, robust 1-to-1 matching:
+    // 1. By unique timetableSlotId (primary, industry standard)
+    // 2. Fallback by exact timeSlot (e.g. "09:00" or "09:00 - 10:00")
+    const existingRecord = existingRecordsForToday.find((r) =>
+      r.timetableSlotId ? r.timetableSlotId === slot.id : r.timeSlot === slot.startTime
     );
 
     if (existingRecord) {
-      updateAttendanceRecord(subject.id, existingRecord.id, { status });
+      updateAttendanceRecord(subject.id, existingRecord.id, {
+        status,
+        timetableSlotId: slot.id, // Ensure slot ID is persisted
+      });
     } else {
       recordAttendance(subject.id, {
         date: todayStr,
-        slotIndex: slot.dayOfWeek,
+        slotIndex: existingRecordsForToday.length, // Accurate incremental index for today (0, 1, 2...)
         timeSlot: slot.startTime,
         type: slot.type,
         weight: slot.type === 'lab' ? 2 : 1,
         status,
+        timetableSlotId: slot.id, // Strictly bind record to this specific timetable slot
       });
     }
 

@@ -77,12 +77,19 @@ export default function TimetableScreen() {
           </View>
 
           <View style={styles.mainInfo}>
-            <Text style={[styles.subjectName, isDarkMode && styles.darkText]} numberOfLines={1}>
-              {subject?.name || 'Unknown Subject'}
+            <Text
+              style={[styles.subjectName, isDarkMode && styles.darkText]}
+              numberOfLines={1}
+              textBreakStrategy="simple"
+            >
+              {subject?.name || 'Unknown Subject'}{' '}
             </Text>
             {subject?.code ? (
-              <Text style={[styles.subjectCode, isDarkMode && styles.darkSubText]}>
-                {subject.code}
+              <Text
+                style={[styles.subjectCode, isDarkMode && styles.darkSubText]}
+                textBreakStrategy="simple"
+              >
+                {subject.code}{' '}
               </Text>
             ) : null}
           </View>
